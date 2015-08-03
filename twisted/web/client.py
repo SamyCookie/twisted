@@ -626,22 +626,18 @@ class URI(object):
         @return: Parsed URI instance.
         """
         uri = uri.strip()
-        scheme, netloc, path, params, query, fragment = http.urlparse(uri)
+        uri = http.urlparse(uri)
+        scheme, netloc, path, params, query, fragment = uri
+        host, port = uri.hostname, uri.port
 
-        if defaultPort is None:
-            if scheme == b'https':
-                defaultPort = 443
+        if port is None:
+            if defaultPort is not None:
+                port = defaultPort
+            elif scheme == b'https':
+                port = 443
             else:
-                defaultPort = 80
+                port = 80
 
-        if b':' in netloc:
-            host, port = netloc.rsplit(b':', 1)
-            try:
-                port = int(port)
-            except ValueError:
-                host, port = netloc, defaultPort
-        else:
-            host, port = netloc, defaultPort
         return cls(scheme, netloc, host, port, path, params, query, fragment)
 
 

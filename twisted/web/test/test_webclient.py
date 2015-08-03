@@ -1156,6 +1156,9 @@ class URITests:
         uri = client.URI.fromBytes(
             self.makeURIString(b'https://HOST'), defaultPort=5144)
         self.assertEqual(5144, uri.port)
+        uri = client.URI.fromBytes(
+            self.makeURIString(b'https://HOST:1234'), defaultPort=5144)
+        self.assertEqual(1234, uri.port)
 
 
     def test_netlocHostPort(self):
@@ -1168,6 +1171,13 @@ class URITests:
         self.assertEqual(5144, uri.port)
         self.assertEqual(self.host, uri.host)
         self.assertEqual(self.uriHost + b':5144', uri.netloc)
+
+        creds = b'username:password@'
+        uri = client.URI.fromBytes(
+            self.makeURIString(b'http://' + creds + b'HOST:5144'))
+        self.assertEqual(5144, uri.port)
+        self.assertEqual(self.host, uri.host)
+        self.assertEqual(creds + self.uriHost + b':5144', uri.netloc)
 
         # Spaces in the hostname are trimmed, the default path is /.
         uri = client.URI.fromBytes(self.makeURIString(b'http://HOST '))
