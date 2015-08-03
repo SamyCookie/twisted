@@ -8,6 +8,7 @@ HTTP client.
 
 from __future__ import division, absolute_import
 
+from base64 import b64encode
 import os
 import warnings
 
@@ -393,6 +394,11 @@ class HTTPClientFactory(protocol.ClientFactory):
             self.scheme = uri.scheme
             self.host = uri.host
             self.port = uri.port
+        cred = uri.cred
+        if cred is not None:
+            self.headers[b'Authorization'] = b"Basic " + uri.cred
+        elif cred in self.headers:
+            del self.headers[b'Authorization']
         self.path = uri.originForm
 
     def buildProtocol(self, addr):
@@ -573,7 +579,7 @@ class URI(object):
     @see: U{https://tools.ietf.org/html/draft-ietf-httpbis-p1-messaging-21}
     """
     def __init__(self, scheme, netloc, host, port, path, params, query,
-                 fragment):
+                 fragment, cred=None):
         """
         @type scheme: L{bytes}
         @param scheme: URI scheme specifier.
@@ -599,6 +605,9 @@ class URI(object):
 
         @type fragment: L{bytes}
         @param fragment: Fragment identifier.
+        
+        @type cred: L{bytes}
+        @param cred: Base64 encoded credentials for basic access authentication.
         """
         self.scheme = scheme
         self.netloc = netloc
@@ -608,6 +617,7 @@ class URI(object):
         self.params = params
         self.query = query
         self.fragment = fragment
+        self.cred = cred
 
 
     @classmethod
@@ -628,7 +638,8 @@ class URI(object):
         uri = uri.strip()
         uri = http.urlparse(uri)
         scheme, netloc, path, params, query, fragment = uri
-        host, port = uri.hostname, uri.port
+        username, password, host, port = \
+            uri.username, uri.password, uri.hostname, uri.port
 
         if port is None:
             if defaultPort is not None:
@@ -638,7 +649,14 @@ class URI(object):
             else:
                 port = 80
 
-        return cls(scheme, netloc, host, port, path, params, query, fragment)
+        cred = None
+        if username is not None:
+            cred = username + b':'
+            if password is not None:
+                cred += password
+            cred = b64encode(cred)
+        
+        return cls(scheme, netloc, host, port, path, params, query, fragment, cred)
 
 
     def toBytes(self):
