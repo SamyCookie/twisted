@@ -938,7 +938,7 @@ class Request:
                     l.extend([name, b": ", value, b"\r\n"])
 
             for cookie in self.cookies:
-                l.append(networkString('Set-Cookie: %s\r\n' % (cookie,)))
+                l.append(b'Set-Cookie: ' + cookie + b'\r\n')
 
             l.append(b"\r\n")
 
@@ -971,26 +971,26 @@ class Request:
         L{twisted.web.server.Session} class for details.
 
         @param k: cookie name
-        @type k: L{str}
+        @type k: L{bytes}
 
         @param v: cookie value
-        @type v: L{str}
+        @type v: L{bytes}
 
         @param expires: cookie expire attribute value in
         "Wdy, DD Mon YYYY HH:MM:SS GMT" format
-        @type expires: L{str}
+        @type expires: L{bytes}
 
         @param domain: cookie domain
-        @type domain: L{str}
+        @type domain: L{bytes}
 
         @param path: cookie path
-        @type path: L{str}
+        @type path: L{bytes}
 
         @param max_age: cookie expiration in seconds from reception
-        @type max_age: L{str}
+        @type max_age: L{bytes}
 
         @param comment: cookie comment
-        @type comment: L{str}
+        @type comment: L{bytes}
 
         @param secure: direct browser to send the cookie on encrypted
         connections only
@@ -1000,21 +1000,21 @@ class Request:
         other than HTTP (and HTTPS) requests
         @type httpOnly: L{bool}
         """
-        cookie = '%s=%s' % (k, v)
+        cookie = k + b'=' + v
         if expires is not None:
-            cookie = cookie + "; Expires=%s" % (expires, )
+            cookie += b"; Expires=" + expires
         if domain is not None:
-            cookie = cookie + "; Domain=%s" % (domain, )
+            cookie += b"; Domain=" + domain
         if path is not None:
-            cookie = cookie + "; Path=%s" % (path, )
+            cookie += b"; Path=" + path
         if max_age is not None:
-            cookie = cookie + "; Max-Age=%s" % (max_age, )
+            cookie += b"; Max-Age=" + max_age
         if comment is not None:
-            cookie = cookie + "; Comment=%s" % (comment, )
+            cookie += b"; Comment=" + comment
         if secure:
-            cookie = cookie + "; Secure"
+            cookie += b"; Secure"
         if httpOnly:
-            cookie = cookie + "; HttpOnly"
+            cookie += b"; HttpOnly"
         self.cookies.append(cookie)
 
     def setResponseCode(self, code, message=None):
