@@ -108,6 +108,17 @@ class SiteTest(unittest.TestCase):
         self.assertIs(site.requestFactory, channel.requestFactory)
 
 
+    def test_mkuid(self):
+        """
+        The C{Session} uid type should be consistent with documentation, e.g.
+        ${bytes}
+        """
+        site = server.Site(resource.Resource())
+
+        uid = site._mkuid()
+
+        self.assertIsInstance(uid, bytes)
+
 
 class SessionTests(unittest.TestCase):
     """
