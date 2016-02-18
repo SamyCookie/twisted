@@ -543,6 +543,23 @@ class RequestTests(unittest.TestCase):
         self.assertEqual(1, len(self.flushLoggedErrors()))
 
 
+    def test_setDefaultSessionCookie(self):
+        """
+        """
+        d = DummyChannel()
+        request = server.Request(d, 1)
+        request.site = server.Site(resource.Resource())
+        request.sitepath = []
+        request.gotLength(0)
+        session = request.getSession()
+        request.requestReceived(b'GET', b'/', b'HTTP/1.0')
+        cookie_name, _ = request.cookies[0].split(b"=", 1)
+        # avoid delayed calls lingering after test exit
+        session.expire()
+        self.assertTrue(bool(request.session))
+        self.assertEqual(cookie_name, b"TWISTED_SESSION")
+
+
     def test_processingFailedDisplayTracebackHandlesUnicode(self):
         """
         L{Request.processingFailed} when the site has C{displayTracebacks} set
