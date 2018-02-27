@@ -748,10 +748,15 @@ class RequestTests(unittest.TestCase):
         request = server.Request(d, 1)
         request.site = site
         request.sitepath = []
+
         session1 = request.getSession()
-        self.addCleanup(session1.expire)
         session2 = request.getSession()
         self.assertIs(session1, session2)
+        
+        session1.expire()
+        session3 = request.getSession()
+        self.assertIsNot(session1, session3)
+        self.addCleanup(session3.expire)
 
 
     def test_retrieveExistingSession(self):
