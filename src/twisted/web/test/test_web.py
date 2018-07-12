@@ -831,7 +831,8 @@ class RequestTests(unittest.TestCase):
 
         # When the session is requested after the session timeout,
         # no error is raised and a new session is returned.
-        clock.advance(sessionFactory.sessionTimeout)
+        ## clock.advance(sessionFactory.sessionTimeout)
+        initialSession.expire()
         newSession = request.getSession()
         self.addCleanup(newSession.expire)
 
